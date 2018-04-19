@@ -1,0 +1,3 @@
+ifneq (,$(filter octa-connect,$(USEMODULE)))
+#	USEMODULE += fifo
+endif
