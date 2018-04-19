@@ -27,18 +27,20 @@
 /**
  * @brief   Define the number of configured sensors
  */
-#define OCTA_CONNECT_NUM      1
+#define OCTA_CONNECT_NUM 1
 
 /**
  * @brief   Memory for the SAUL registry entries
  */
-static saul_reg_t saul_entries[OCTA_CONNECT_NUM * 1];
+static saul_reg_t saul_entries[OCTA_CONNECT_NUM * 3];
 
 /**
  * @brief   Reference the driver struct
  * @{
  */
 extern saul_driver_t octa_saul_led_r_driver;
+extern saul_driver_t octa_saul_led_g_driver;
+extern saul_driver_t octa_saul_led_b_driver;
 /** @} */
 
 void auto_init_octa_connect(void)
@@ -47,7 +49,18 @@ void auto_init_octa_connect(void)
 	saul_entries[0].dev = NULL;
 	saul_entries[0].name = "Octa(red)";
 	saul_entries[0].driver = &octa_saul_led_r_driver;
-	saul_reg_add(&(saul_entries[0]));
+	
+	saul_entries[1].dev = NULL;
+	saul_entries[1].name = "Octa(green)";
+	saul_entries[1].driver = &octa_saul_led_g_driver;
+	
+	saul_entries[2].dev = NULL;
+	saul_entries[2].name = "Octa(blue)";
+	saul_entries[2].driver = &octa_saul_led_g_driver;
+	
+	for (int i = 0; i < OCTA_CONNECT_NUM * 3; i++) {
+		saul_reg_add(&(saul_entries[i]));
+	}
 }
 
 #else
