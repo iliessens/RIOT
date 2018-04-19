@@ -1,23 +1,3 @@
-/*
- * Copyright (C) 2017 HAW Hamburg
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License v2.1. See the file LICENSE in the top level
- * directory for more details.
- *
- */
-
-/*
- * @ingroup     auto_init_saul
- * @{
- *
- * @file
- * @brief       Auto initialization for HTS221 devices
- *
- * @author      Sebastian Meiling <s@mlng.net>
- *
- * @}
- */
 
 #ifdef MODULE_OCTA_CONNECT
 
@@ -34,33 +14,34 @@
  */
 static saul_reg_t saul_entries[OCTA_CONNECT_NUM * 3];
 
+// device descriptor
+static octa_led_t leds[3]; // memory for the three LEDs
+
 /**
  * @brief   Reference the driver struct
  * @{
  */
-extern saul_driver_t octa_saul_led_r_driver;
-extern saul_driver_t octa_saul_led_g_driver;
-extern saul_driver_t octa_saul_led_b_driver;
+extern saul_driver_t octa_saul_led_driver;
 /** @} */
+
+static void led_init(void) {
+	// init LEDs
+	for (int i = 0; i < 3; i++) {
+		leds->color = i;
+		
+		saul_entries[i].dev = &leds[i];
+		saul_entries[i].name = "Octa(led)";
+		saul_entries[i].driver = &octa_saul_led_driver;
+		
+		saul_reg_add(&(saul_entries[i]));
+	}
+}
 
 void auto_init_octa_connect(void)
 {
-
-	saul_entries[0].dev = NULL;
-	saul_entries[0].name = "Octa(red)";
-	saul_entries[0].driver = &octa_saul_led_r_driver;
+	octa_connect_init();
 	
-	saul_entries[1].dev = NULL;
-	saul_entries[1].name = "Octa(green)";
-	saul_entries[1].driver = &octa_saul_led_g_driver;
-	
-	saul_entries[2].dev = NULL;
-	saul_entries[2].name = "Octa(blue)";
-	saul_entries[2].driver = &octa_saul_led_g_driver;
-	
-	for (int i = 0; i < OCTA_CONNECT_NUM * 3; i++) {
-		saul_reg_add(&(saul_entries[i]));
-	}
+	led_init();
 }
 
 #else
