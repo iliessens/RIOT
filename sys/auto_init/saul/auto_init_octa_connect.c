@@ -8,7 +8,7 @@
 /**
  * @brief   Define the number of configured sensors
  */
-#define OCTA_LED_NUM 3
+#define OCTA_LED_NUM 1
 #define OCTA_BTN_NUM 2
 #define OCTA_TOTAL_DEV_NUM (OCTA_LED_NUM + OCTA_BTN_NUM)
 
@@ -18,7 +18,6 @@
 static saul_reg_t saul_entries[OCTA_TOTAL_DEV_NUM];
 
 // device descriptor
-static octa_led_t leds[OCTA_LED_NUM]; // memory for the three LEDs
 static int btns[OCTA_BTN_NUM];
 
 /**
@@ -31,15 +30,12 @@ extern saul_driver_t octa_saul_btn_driver;
 
 static void led_init(void) {
 	// init LEDs
-	for (int i = 0; i < OCTA_LED_NUM; i++) {
-		leds[i].color = i;
-		
-		saul_entries[i].dev = &leds[i];
-		saul_entries[i].name = "Octa(LED)";
-		saul_entries[i].driver = &octa_saul_led_driver;
-		
-		saul_reg_add(&(saul_entries[i]));
-	}
+
+	saul_entries[0].dev = NULL; //remains unused
+	saul_entries[0].name = "Octa(LED)";
+	saul_entries[0].driver = &octa_saul_led_driver;
+	
+	saul_reg_add(&(saul_entries[0]));
 }
 
 void btn_init(void) {

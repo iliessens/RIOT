@@ -2,22 +2,34 @@
 
 #include "saul.h"
 #include "octa_connect.h"
+#include <stdio.h>
 
 static int writeLED(const void *dev, phydat_t* res) {
-	const octa_led_t* ledDev = (const octa_led_t *) dev;
-	octa_write_led(ledDev->color, res->val[0]);
-	return 1; // 1 value processed
+	(void) dev;
+	
+	for(int i = 0; i < 3; i++) {
+		int16_t val = res->val[i];
+		// prevent bigger values from causing problems
+		if(val > 0) val = 1;
+		else val= 0;
+		
+		octa_write_led(i, val);
+	}
+	
+	return 3;
 }
 
 static int readLED(const void * dev, phydat_t* state) {
+	(void) dev;
+	
 	state->scale = 0;
 	state->unit = UNIT_BOOL;
 	
-	const octa_led_t* ledDev = (const octa_led_t *) dev;
-	state->val[0] = octa_read_led(ledDev->color);
+	for(int i = 0; i < 3; i++) {
+		state->val[i] = octa_read_led(i);
+	}
 	
-	memset(&(state->val[1]), 0, 2 * sizeof(uint16_t)); // set two other fields to 0
-	return 1;
+	return 3;
 }
 
 static int readButton(const void *dev, phydat_t* state) {
@@ -37,7 +49,7 @@ static int readButton(const void *dev, phydat_t* state) {
 const saul_driver_t octa_saul_led_driver = {
 	.read = readLED,
 	.write = writeLED,
-	.type = SAUL_ACT_SWITCH,
+	.type = SAUL_ACT_LED_RGB,
 };
 
 const saul_driver_t octa_saul_btn_driver = {
