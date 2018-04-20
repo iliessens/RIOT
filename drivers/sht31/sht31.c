@@ -77,23 +77,44 @@ void sht31_read(sht31_t* dev) {
 	i2c_release(BUS);
 }
 
-// value nog te scalen met 10E⁻5
-void sht31_read_temp(const sht31_t* dev, int16_t* result) {
+enum { TEMP, HUM }; // is zowiezo static
+
+// TODO maybe use CRC
+static void read_sensor(const sht31_t* dev, int16_t* result, int type) {
 	// Get I2C device, SHT31 I2C address is 0x44(68)
 	
 	i2c_acquire(BUS);
 
 	// Read 6 bytes of data
 	// temp msb, temp lsb, temp CRC, humidity msb, humidity lsb, humidity CRC
-	char data[6] = {0};
+	char data[5] = {0};
+	
+	int length;
+	if(type == TEMP) length = 2; // only need first two bytes
+	else length = 5;
 	
 	//wait until we get a valid measurement (num of bytes > 0)
 	// backoff for a short period
-	while(i2c_read_bytes(BUS, ADDR, &data[0], 6) == 0) xtimer_usleep(20);
+	while(i2c_read_bytes(BUS, ADDR, &data[0], length) == 0) xtimer_usleep(20);
 	
-	// TODO remove floating point arithmetic
-	double cTemp = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
-	*result = (int16_t) (cTemp * 100);
+	if(type == HUM) {
+		double humidity = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
+		*result = (int16_t) humidity; // scale 0
+	}
+	else {
+		// TODO remove floating point arithmetic
+		double cTemp = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
+		*result = (int16_t) (cTemp * 100); // scale -2
+	}
 	
 	i2c_release(BUS);
+}
+
+// value nog te scalen met 10E⁻2
+void sht31_read_temp(const sht31_t* dev, int16_t* result) {
+	read_sensor(dev,result, TEMP);
+}
+
+void sht31_read_hum(const sht31_t* dev, int16_t* result) {
+	read_sensor(dev,result, HUM);
 }

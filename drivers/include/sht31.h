@@ -21,6 +21,6 @@ typedef struct {
 
 int sht31_init(sht31_t* dev, const sht31_params_t* params);
 void sht31_read_temp(const sht31_t* dev, int16_t* data);
-void sht31_read(sht31_t* dev);
+void sht31_read_hum(const sht31_t* dev, int16_t* data);
 
 #endif

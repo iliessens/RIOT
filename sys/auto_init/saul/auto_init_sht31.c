@@ -15,6 +15,7 @@ static saul_reg_t saul_entries[SHT31_NUM * 2];
  * @{
  */
 extern saul_driver_t sht31_saul_temp_driver;
+extern saul_driver_t sht31_saul_hum_driver;
 
 void auto_init_sht31(void) {
 	for(unsigned int i =0; i < SHT31_NUM; i++) {
@@ -24,6 +25,11 @@ void auto_init_sht31(void) {
         saul_entries[(i * 2)].name = sht31_saul_info[i].name;
         saul_entries[(i * 2)].driver = &sht31_saul_temp_driver;
 		
+		saul_entries[(i * 2) + 1].dev = &(sht31_devs[i]);
+        saul_entries[(i * 2) + 1].name = sht31_saul_info[i].name;
+        saul_entries[(i * 2) + 1].driver = &sht31_saul_hum_driver;
+		
 		saul_reg_add(&(saul_entries[(i * 2)]));
+		saul_reg_add(&(saul_entries[(i * 2) + 1]));
 	}
 }
