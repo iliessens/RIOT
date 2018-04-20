@@ -2,8 +2,6 @@
 #ifndef OCTA_CONNECT_H
 #define OCTA_CONNECT_H
 
-#include "saul_reg.h"
-
 typedef enum { RED, GREEN, BLUE} octa_led_color_t;
 typedef struct {
 	octa_led_color_t color;

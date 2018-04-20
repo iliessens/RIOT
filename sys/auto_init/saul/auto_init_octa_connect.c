@@ -3,6 +3,7 @@
 
 #include "log.h"
 #include "octa_connect.h"
+#include "saul_reg.h"
 
 /**
  * @brief   Define the number of configured sensors
