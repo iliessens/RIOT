@@ -375,6 +375,10 @@ auto_init_mpu9150();
     extern void auto_init_lis2dh12(void);
     auto_init_lis2dh12();
 #endif
+#ifdef MODULE_SHT31
+    extern void auto_init_sht31(void);
+    auto_init_sht31();
+#endif
 
 #ifdef MODULE_OCTA_CONNECT
     extern void auto_init_octa_connect(void);
