@@ -355,4 +355,5 @@ endif
 
 ifneq (,$(filter sht31,$(USEMODULE)))
   FEATURES_REQUIRED += periph_i2c
+  USEMODULE += xtimer
 endif

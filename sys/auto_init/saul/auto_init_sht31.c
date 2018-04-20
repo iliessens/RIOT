@@ -1,3 +1,5 @@
+#ifdef MODULE_SHT31
+
 #include "sht31.h"
 #include "sht31_params.h"
 
@@ -33,3 +35,7 @@ void auto_init_sht31(void) {
 		saul_reg_add(&(saul_entries[(i * 2) + 1]));
 	}
 }
+
+#else
+typedef int dont_be_pedantic;
+#endif
