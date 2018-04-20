@@ -353,7 +353,7 @@ ifneq (,$(filter tja1042,$(USEMODULE)))
   FEATURES_REQUIRED += periph_gpio
 endif
 
-ifneq (,$(filter octa,$(USEMODULE)))
+ifneq (,$(filter octa_connect,$(USEMODULE)))
   USEMODULE += sht31
 endif
 
