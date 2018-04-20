@@ -1,14 +1,14 @@
 #include <string.h>
 #include "saul.h"
+#include "sht31.h"
 
 #include <stdio.h>
 
 static int read_temp(const void * dev, phydat_t * res) {
-	(void) dev;
-	
 	res->unit = UNIT_TEMP_C;
+	res->scale = -2;
 	
-	puts("Not implented :)");
+	sht31_read_temp(dev, &(res->val[0]));
 	
 	return 1;
 }
