@@ -9,6 +9,17 @@ static int writeLED(const void *dev, phydat_t* res) {
 	return 1; // 1 value processed
 }
 
+static int readLED(const void * dev, phydat_t* state) {
+	state->scale = 0;
+	state->unit = UNIT_BOOL;
+	
+	const octa_led_t* ledDev = (const octa_led_t *) dev;
+	state->val[0] = octa_read_led(ledDev->color);
+	
+	memset(&(state->val[1]), 0, 2 * sizeof(uint16_t)); // set two other fields to 0
+	return 1;
+}
+
 static int readButton(const void *dev, phydat_t* state) {
 	state->scale = 0;
 	state->unit = UNIT_BOOL;
@@ -24,7 +35,7 @@ static int readButton(const void *dev, phydat_t* state) {
 // saul driver definitions
 
 const saul_driver_t octa_saul_led_driver = {
-	.read = saul_notsup, // TODO implement reading led state
+	.read = readLED,
 	.write = writeLED,
 	.type = SAUL_ACT_SWITCH,
 };

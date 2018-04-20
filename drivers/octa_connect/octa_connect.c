@@ -42,22 +42,37 @@ int octa_connect_init(void) {
 	return 0;
 }
 
-void octa_write_led(octa_led_color_t color, int state) {
-	gpio_t* pin = NULL;
-	
+gpio_t* color_to_pin(octa_led_color_t color) {
 	switch(color) {
-		case(RED): pin = &octa_gpio.red;
+		case(RED): return &octa_gpio.red;
 		break;
-		case(GREEN): pin = &octa_gpio.green;
+		case(GREEN): return &octa_gpio.green;
 		break;
-		case(BLUE): pin = &octa_gpio.blue;
+		case(BLUE): return &octa_gpio.blue;
 		break;
+		default: return NULL;
 	}
+}
+
+void octa_write_led(octa_led_color_t color, int state) {
+	gpio_t* pin = color_to_pin(color);
 	
 	if(pin == NULL) return;
-	puts("Writing LED");
 	
 	gpio_write(*pin, (state == 1) ? 0 : 1);
+}
+
+int octa_read_led(octa_led_color_t color) {
+	gpio_t* pin = color_to_pin(color);
+	
+	if(pin == NULL) {
+		puts("Octa: Invalid LED color");
+		return 0;
+	}
+	
+	int result = gpio_read(*pin);
+	if(result > 0) return 0;
+	else return 1;
 }
 
 int octa_read_button(int button) {
