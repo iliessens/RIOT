@@ -9,7 +9,7 @@
 #include <string.h>
 #include "xtimer.h"
 
-#define ENABLE_DEBUG (1)
+#define ENABLE_DEBUG (0)
 #include "debug.h"
 
 #define I2C_SPEED 	I2C_SPEED_FAST
@@ -51,30 +51,6 @@ int sht31_init(sht31_t* dev, const sht31_params_t* params)
 	DEBUG("SHT31 init done, status %d\n", status);
 	
 	return status;
-}
-
-void sht31_read(sht31_t* dev) {
-	// Get I2C device, SHT31 I2C address is 0x44(68)
-	
-	i2c_acquire(BUS);
-
-	// Read 6 bytes of data
-	// temp msb, temp lsb, temp CRC, humidity msb, humidity lsb, humidity CRC
-	char data[6] = {0};
-	
-	//wait until we get a valid measurement (num of bytes > 0)
-	while(i2c_read_bytes(BUS, ADDR, &data[0], 6) == 0) ;
-	
-	// Convert the data
-//	double cTemp = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
-	uint16_t cTemp = ((data[0] * 256) + data[1]) * 267  - 45.0;
-	double humidity = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
-
-	// Output data to screen
-	printf("Temperature in Celsius : %d C \n", cTemp);
-	printf("Relative Humidity is : %.2f RH \n", humidity);
-	
-	i2c_release(BUS);
 }
 
 enum { TEMP, HUM }; // is zowiezo static
