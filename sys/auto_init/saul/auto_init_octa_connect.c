@@ -29,7 +29,7 @@ extern saul_driver_t octa_saul_btn_driver;
 static void led_init(void) {
 	// init LEDs
 	for (int i = 0; i < 3; i++) {
-		leds->color = i;
+		leds[i].color = i;
 		
 		saul_entries[i].dev = &leds[i];
 		saul_entries[i].name = "Octa(LED)";
