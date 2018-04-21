@@ -79,13 +79,14 @@ static void _read_sensor(const sht31_t* dev, int16_t* result, int type) {
 	}
 	
 	if(type == HUM) {
-		double humidity = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
-		*result = (int16_t) humidity; // scale 0
+		*result = (int16_t) (((data[3] * 256) + data[4])) * 100 / 65535;
 	}
 	else {
 		// TODO remove floating point arithmetic
-		double cTemp = (((data[0] * 256) + data[1]) * 175.0) / 65535.0  - 45.0;
-		*result = (int16_t) (cTemp * 100); // scale -2
+		double cTemp = (((data[0] * 256) + data[1]) * 175) / 65535.0  - 45;
+		
+		// scale -2
+		*result = (int16_t) (cTemp * 100);
 	}
 	
 	i2c_release(BUS);
