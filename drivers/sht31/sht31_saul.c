@@ -2,8 +2,6 @@
 #include "saul.h"
 #include "sht31.h"
 
-#include <stdio.h>
-
 static int read_temp(const void * dev, phydat_t * res) {
 	res->unit = UNIT_TEMP_C;
 	res->scale = -2;

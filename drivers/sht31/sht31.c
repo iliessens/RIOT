@@ -12,13 +12,14 @@
 #define ENABLE_DEBUG (0)
 #include "debug.h"
 
+#define SHT31_MSB_1MPS 0x21
+#define SHT31_LSB_HIGH_REPEATABILITY 0x30
+#define SHT31_CONFIG_LENGTH 2
+#define SHT31_MEASUREMENT_BACKOFF 20
+
 #define I2C_SPEED 	I2C_SPEED_FAST
 #define BUS 		(dev->p.i2c)
 #define ADDR		(dev->p.addr)
-
-
-i2c_t dev = I2C_DEV(0);
-uint8_t address = 0x44;
 
 int sht31_init(sht31_t* dev, const sht31_params_t* params)
 {
@@ -36,14 +37,16 @@ int sht31_init(sht31_t* dev, const sht31_params_t* params)
 	if(status == SHT31_OK) {
 		DEBUG("Bus aqcuired and init OK\n");
 		
-		char config[2] = {0};
+		uint8_t config[SHT31_CONFIG_LENGTH] = {0};
 		
-		config[0] = 0x21;
-		config[1] = 0x30;
+		config[0] = SHT31_MSB_1MPS;
+		config[1] = SHT31_LSB_HIGH_REPEATABILITY;
 
-		if( i2c_write_bytes(BUS, address, &config[0], 2) != 2) status = SHT31_ECONFIG;
+		if( i2c_write_bytes(BUS, ADDR, &config[0], SHT31_CONFIG_LENGTH) != SHT31_CONFIG_LENGTH) {
+			status = SHT31_ECONFIG;
+		}
 		
-		DEBUG("Config written\n");
+		if(status == SHT31_OK) DEBUG("Config written\n");
 	}
 	
 	i2c_release(BUS);
@@ -53,10 +56,10 @@ int sht31_init(sht31_t* dev, const sht31_params_t* params)
 	return status;
 }
 
-enum { TEMP, HUM }; // is zowiezo static
+enum { TEMP, HUM };
 
 // TODO maybe use CRC
-static void read_sensor(const sht31_t* dev, int16_t* result, int type) {
+static void _read_sensor(const sht31_t* dev, int16_t* result, int type) {
 	// Get I2C device, SHT31 I2C address is 0x44(68)
 	
 	i2c_acquire(BUS);
@@ -71,7 +74,9 @@ static void read_sensor(const sht31_t* dev, int16_t* result, int type) {
 	
 	//wait until we get a valid measurement (num of bytes > 0)
 	// backoff for a short period
-	while(i2c_read_bytes(BUS, ADDR, &data[0], length) == 0) xtimer_usleep(20);
+	while(i2c_read_bytes(BUS, ADDR, &data[0], length) == 0) {
+		xtimer_usleep(SHT31_MEASUREMENT_BACKOFF);
+	}
 	
 	if(type == HUM) {
 		double humidity = (((data[3] * 256) + data[4])) * 100.0 / 65535.0;
@@ -86,11 +91,11 @@ static void read_sensor(const sht31_t* dev, int16_t* result, int type) {
 	i2c_release(BUS);
 }
 
-// value nog te scalen met 10E⁻2
+// value needs to be scaled 10E-2
 void sht31_read_temp(const sht31_t* dev, int16_t* result) {
-	read_sensor(dev,result, TEMP);
+	_read_sensor(dev,result, TEMP);
 }
 
 void sht31_read_hum(const sht31_t* dev, int16_t* result) {
-	read_sensor(dev,result, HUM);
+	_read_sensor(dev,result, HUM);
 }
