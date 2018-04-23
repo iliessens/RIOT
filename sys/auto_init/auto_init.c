@@ -393,6 +393,12 @@ auto_init_mpu9150();
     extern void auto_init_lis2dh12(void);
     auto_init_lis2dh12();
 #endif
+
+#ifdef MODULE_SHT31
+    extern void auto_init_sht31(void);
+    auto_init_sht31();
+#endif
+
 #ifdef MODULE_SI114X
     extern void auto_init_si114x(void);
     auto_init_si114x();
