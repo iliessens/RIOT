@@ -1,7 +1,8 @@
 #include <string.h> // for memset
 
 #include "saul.h"
-#include "octa_connect.h"
+#include "board.h"
+#include "octa_gpio.h"
 #include <stdio.h>
 
 static int writeLED(const void *dev, phydat_t* res) {

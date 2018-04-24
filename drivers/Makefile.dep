@@ -353,10 +353,6 @@ ifneq (,$(filter tja1042,$(USEMODULE)))
   FEATURES_REQUIRED += periph_gpio
 endif
 
-ifneq (,$(filter octa_connect,$(USEMODULE)))
-  USEMODULE += sht31
-endif
-
 ifneq (,$(filter sht31,$(USEMODULE)))
   FEATURES_REQUIRED += periph_i2c
   USEMODULE += xtimer

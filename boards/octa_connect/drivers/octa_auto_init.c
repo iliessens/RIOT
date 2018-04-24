@@ -1,8 +1,7 @@
 
-#ifdef MODULE_OCTA_CONNECT
-
 #include "log.h"
-#include "octa_connect.h"
+#include "board.h"
+#include "octa_auto_init.h"
 #include "saul_reg.h"
 
 /**
@@ -52,12 +51,6 @@ void btn_init(void) {
 
 void auto_init_octa_connect(void)
 {
-	octa_connect_init();
-	
 	led_init();
 	btn_init();
 }
-
-#else
-typedef int dont_be_pedantic;
-#endif

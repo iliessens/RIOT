@@ -1,0 +1,5 @@
+ifneq (,$(filter saul_default,$(USEMODULE)))
+  USEMODULE += sht31
+endif
+
+include $(RIOTBOARD)/common/nucleo/Makefile.dep

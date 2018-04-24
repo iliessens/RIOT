@@ -380,11 +380,6 @@ auto_init_mpu9150();
     auto_init_sht31();
 #endif
 
-#ifdef MODULE_OCTA_CONNECT
-    extern void auto_init_octa_connect(void);
-    auto_init_octa_connect();
-#endif
-
 #endif /* MODULE_AUTO_INIT_SAUL */
 
 #ifdef MODULE_AUTO_INIT_GNRC_RPL

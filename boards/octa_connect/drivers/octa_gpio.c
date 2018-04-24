@@ -1,5 +1,5 @@
 #include "periph/gpio.h"
-#include "octa_connect.h"
+#include "board.h"
 #include "octa_gpio.h"
 
 typedef struct {

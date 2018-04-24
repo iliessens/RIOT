@@ -1,4 +1,4 @@
 MODULE = board
-DIRS = $(RIOTBOARD)/common/nucleo
+DIRS = drivers
 
 include $(RIOTBASE)/Makefile.base
