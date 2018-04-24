@@ -23,5 +23,7 @@ void board_init(void) {
     gpio_init(LED2_PIN, GPIO_OUT);
 #endif
 
+#ifdef MODULE_SAUL_DEFAULT
 	auto_init_octa_connect();
+#endif
 }
