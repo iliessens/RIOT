@@ -5,12 +5,9 @@
 #define __GPS_H
 
 #include "nmea.h"
-#include "hwuart.h"
-#include "hwi2c.h"
-#include "hwgpio.h"
+#include "periph/uart.h"
 
-bool gps_init_uart(uart_handle_t* uart_handle);
-bool gps_init_i2c(i2c_handle_t* i2c_handle, pin_id_t interrupt_pin);
+bool gps_init_uart(uart_t uart_handle);
 
 //void gps_firmware_version(void);
 
@@ -26,10 +23,5 @@ typedef struct gps_position_dd {
 } gps_position_dd_t;
 
 gps_position_dd_t gps_get_position_dd(void);
-void gps_activate(void);
-void gps_default_settings(void);
-void gps_set_baudrate(uint32_t baudrate);
-void gps_set_update_rate(uint16_t updateRate);
-void gps_deactivate(void);
 
 #endif
