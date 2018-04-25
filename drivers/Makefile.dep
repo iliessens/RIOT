@@ -121,6 +121,10 @@ ifneq (,$(filter feetech,$(USEMODULE)))
   USEMODULE += uart_half_duplex
 endif
 
+ifneq (,$(filter fireflyx1,$(USEMODULE)))
+  USEMODULE += fifo
+endif
+
 ifneq (,$(filter grove_ledbar,$(USEMODULE)))
   USEMODULE += my9221
 endif
