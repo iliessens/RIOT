@@ -21,7 +21,7 @@
 #include "errors.h"
 #include "fifo.h"
 #include "alp.h"
-#include "log.h"
+#include "oss7_log.h"
 
 #include "xtimer.h"
 #include "thread.h"

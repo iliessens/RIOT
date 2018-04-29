@@ -26,7 +26,7 @@
 #include "alp.h"
 //#include "fs.h"
 #include "fifo.h"
-#include "log.h"
+#include "oss7_log.h"
 #include "types.h"
 #include <assert.h>
 

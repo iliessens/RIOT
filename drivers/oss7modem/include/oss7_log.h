@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef OSS7_LOG_H
+#define OSS7_LOG_H
 
 #include "stdint.h"
 
