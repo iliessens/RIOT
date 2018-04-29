@@ -260,6 +260,10 @@ ifneq (,$(filter pcd8544,$(USEMODULE)))
   USEMODULE += xtimer
 endif
 
+ifneq (,$(filter oss7modem,$(USEMODULE)))
+	USEMODULE += fifo
+endif
+
 ifneq (,$(filter rgbled,$(USEMODULE)))
   USEMODULE += color
 endif
