@@ -2,6 +2,8 @@
 #ifndef OCTA_CONNECT_H
 #define OCTA_CONNECT_H
 
+#include "octa_ports.h"
+
 typedef enum { RED, GREEN, BLUE} octa_led_color_t;
 
 void octa_write_led(octa_led_color_t color, int state);
