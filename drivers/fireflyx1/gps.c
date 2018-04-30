@@ -28,7 +28,7 @@ static fifo_t  _gps_fifo;
 static bool _active = true;
 static interface_t _interface = INTERFACE_NOT_INITIALIZED;
 static uart_t _uart;
-static uint32_t baudrate = 115200;       // set to 57600 or higher for updaterates higher than 1Hz
+static uint32_t baudrate = 9600;       // set to 57600 or higher for updaterates higher than 1Hz
 
 static void _process_gps_fifo(void) {
 	
@@ -40,6 +40,7 @@ static void _process_gps_fifo(void) {
 
      nmea_parse(byte);
 	}
+	
 
 }
 
