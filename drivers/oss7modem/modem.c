@@ -328,7 +328,7 @@ bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* 
   
   // block until ready
   
-  int ok = 0;
+  //int ok = 0;
   mutex_lock(&cmd_mutex);
   
   return true;
