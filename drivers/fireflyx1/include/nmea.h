@@ -40,4 +40,6 @@ nmea_position_t nmea_get_position(void);
 
 bool nmea_have_position(void);
 
+extern void (*nmea_callback_ptr)(void);
+
 #endif

@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "mutex.h"
 #include "thread.h"
+#include "msg.h"
 #include "nmea.h"
 #include "fireflyx1.h"
 
@@ -30,6 +31,8 @@ static interface_t _interface = INTERFACE_NOT_INITIALIZED;
 static uart_t _uart;
 static uint32_t baudrate = 9600;       // set to 57600 or higher for updaterates higher than 1Hz
 
+static kernel_pid_t callback_pid = -1; // defines no callback
+
 static void _process_gps_fifo(void) {
 	
 	//puts("GPS processing");
@@ -40,7 +43,6 @@ static void _process_gps_fifo(void) {
 
      nmea_parse(byte);
 	}
-	
 
 }
 
@@ -105,5 +107,22 @@ gps_position_dd_t gps_get_position_dd(void) {
   }
   dd.hdop = pos.hdop;
   return dd;
+}
+
+void process_nmea_callback(void) {
+	if(callback_pid == -1) return;
+	
+	msg_t update_msg;
+	update_msg.type = GPS_MSG_TYPE;
+	
+	// send message to thread
+	msg_try_send(&update_msg, callback_pid);
+}
+
+void gps_set_callback(kernel_pid_t pid) {
+	callback_pid = pid;
+	// only init nmea callback when used
+	if (pid != -1) nmea_callback_ptr = process_nmea_callback;
+	else nmea_callback_ptr = NULL;
 }
 

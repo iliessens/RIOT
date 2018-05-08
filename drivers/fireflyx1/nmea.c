@@ -13,6 +13,8 @@
 // local variable to store the results of parsing
 static nmea_position_t position,
                        current_position;
+					   
+void (*nmea_callback_ptr)(void) = NULL;
 
 nmea_position_t nmea_get_position(void) { return current_position;             }
 bool nmea_have_position(void)           { return current_position.quality > 0; }
@@ -233,6 +235,7 @@ int parse_hdop(uint8_t b) {
 		dec = 0;
 		// full parse, store current position
 		current_position = position;
+		if(nmea_callback_ptr != NULL) nmea_callback_ptr();
 		return OK;
 	}
 

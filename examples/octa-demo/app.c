@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "thread.h"
+#include "msg.h"
 #include "xtimer.h"
 #include "saul_reg.h"
 
@@ -10,7 +11,7 @@
 #include "oss7modem.h"
 
 #define SLEEP_TIME 10
-#define GPS_PORT 	OCTA_P1
+#define GPS_PORT 	OCTA_P2
 #define MODEM_PORT 	OCTA_P2
 
 #define FILE_ID_START 0x40
@@ -24,26 +25,28 @@ void * app_thread(void * arg) {
 	saul_reg_t* humSensor = saul_reg_find_type(SAUL_SENSE_HUM);
 	
 	while(1) {
+		
+		uint32_t start =  xtimer_now_usec();
 		phydat_t result;
 		
 		//temperature
 		saul_reg_read(tempSensor, &result);
-		uint8_t tempResult = result.val[0];
+		//uint8_t tempResult = result.val[0];
 		
 		float floattemp = result.val[0] * pow(10,result.scale);
 		printf("Temperatuur: %f\n", floattemp);
 		
 		// bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
-		modem_write_file(FILE_ID_START, 0, 1, &tempResult);
+		//modem_write_file(FILE_ID_START, 0, 1, &tempResult);
 		
 		// humidity
 		saul_reg_read(humSensor, &result);
-		uint8_t humResult = result.val[0];
+		//uint8_t humResult = result.val[0];
 		
 		floattemp = result.val[0] * pow(10,result.scale);
 		printf("Vochtigheid: %f\n", floattemp);
 		
-		modem_write_file(FILE_ID_START + 1, 0, 1, &humResult);
+		//modem_write_file(FILE_ID_START + 1, 0, 1, &humResult);
 		
 		//position
 		gps_position_dd_t pos = gps_get_position_dd();
@@ -54,17 +57,28 @@ void * app_thread(void * arg) {
 		uint8_t data[posLength];
 		memcpy(data,&pos,posLength);
 		
-		modem_write_file(FILE_ID_START + 2, 0, posLength, data);
+		//modem_write_file(FILE_ID_START + 2, 0, posLength, data);
 		
-		xtimer_sleep(SLEEP_TIME);
+		msg_t msg;
+		msg.type = 0; // init on undefined value
+		while(msg.type != GPS_MSG_TYPE) {
+			//TODO maybe add GPS data to IPC message
+			msg_receive(&msg);
+		}
+		// new GPS data is available bbut may be too fast
+		
+		uint32_t time = SLEEP_TIME * 1000000 - (xtimer_now_usec() - start);
+		if(time> 0) xtimer_usleep(time); // sleep remaining time
 	}
 	
 }
 
 void startApp(void) {
 	gps_init_uart(GPS_PORT.uart);
-	modem_init(MODEM_PORT.uart);
+	//modem_init(MODEM_PORT.uart);
 	
-	thread_create(app_thread_stack, sizeof(app_thread_stack), THREAD_PRIORITY_MAIN - 2, 
+	kernel_pid_t pid = thread_create(app_thread_stack, sizeof(app_thread_stack), THREAD_PRIORITY_MAIN - 2, 
 		0 , app_thread , NULL, "App");
+	
+	gps_set_callback(pid);
 }
