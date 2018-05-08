@@ -301,7 +301,7 @@ bool modem_read_file(uint8_t file_id, uint32_t offset, uint32_t size, modem_read
 	send(command.buffer, fifo_get_size(&command.fifo));
  
 	// try to lock again, should block until ready
- 	int ok = xtimer_mutex_lock_timeout(&cmd_mutex, OSS7MODEM_CMD_TIMEOUT); 
+ 	int ok = xtimer_mutex_lock_timeout(&cmd_mutex, OSS7MODEM_READ_TIMEOUT); 
 	file_return = NULL; // clear internal pointer for next use
 	
 	if(ok == -1) {
@@ -327,9 +327,13 @@ bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* 
   send(command.buffer, fifo_get_size(&command.fifo));
   
   // block until ready
-  
-  //int ok = 0;
-  mutex_lock(&cmd_mutex);
+  // Timeout is longer because writes take longer
+ 	int ok = xtimer_mutex_lock_timeout(&cmd_mutex, OSS7MODEM_WRITE_TIMEOUT); 
+	
+	if(ok == -1) {
+		command.is_active = false; // reset command field
+		return false; // timer expired
+	}
   
   return true;
 }
