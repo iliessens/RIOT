@@ -37,49 +37,51 @@ static d7ap_master_session_config_t session_config = {
 
 static char app_thread_stack[THREAD_STACKSIZE_MAIN];
 
-void * app_thread(void * arg) {
-	(void) arg; // supress warning
-	
+void processSHT31(void) {
 	saul_reg_t* tempSensor = saul_reg_find_type(SAUL_SENSE_TEMP);
 	saul_reg_t* humSensor = saul_reg_find_type(SAUL_SENSE_HUM);
+	
+	phydat_t result;
+	
+	//temperature
+	saul_reg_read(tempSensor, &result);
+	uint8_t tempResult = result.val[0];
+	float floattemp = result.val[0] * pow(10,result.scale);
+	printf("Temperatuur: %f\n", floattemp);
+	modem_send_unsolicited_response(FILE_ID_START, 0, 1, &tempResult, &session_config);
+	
+	
+	// humidity
+	saul_reg_read(humSensor, &result);
+	uint8_t humResult = result.val[0];
+	floattemp = result.val[0] * pow(10,result.scale);
+	printf("Vochtigheid: %f\n", floattemp);
+	modem_send_unsolicited_response(FILE_ID_START + 1, 0, 1, &humResult, &session_config);
+	
+}
+
+void processGPS(void) {
+	//position
+	gps_position_dd_t pos = gps_get_position_dd();
+	printf("Latitude: %f\n", pos.latitude);
+	printf("Longitude: %f\n", pos.longitude);
+	
+	int posLength = sizeof(pos);
+	uint8_t data[posLength];
+	memcpy(data,&pos,posLength);
+	
+	//bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
+	modem_send_unsolicited_response(FILE_ID_START + 2, 0, posLength, data, &session_config);
+}
+void * app_thread(void * arg) {
+	(void) arg; // supress warning
 	
 	while(1) {
 		
 		uint32_t start =  xtimer_now_usec();
-		phydat_t result;
 		
-		//temperature
-		saul_reg_read(tempSensor, &result);
-		uint8_t tempResult = result.val[0];
-		
-		float floattemp = result.val[0] * pow(10,result.scale);
-		printf("Temperatuur: %f\n", floattemp);
-		
-		//bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
-		modem_send_unsolicited_response(FILE_ID_START, 0, 1, &tempResult, &session_config);
-		//modem_write_file(FILE_ID_START, 0, 1, &tempResult);
-		
-		// humidity
-		saul_reg_read(humSensor, &result);
-		uint8_t humResult = result.val[0];
-		
-		floattemp = result.val[0] * pow(10,result.scale);
-		printf("Vochtigheid: %f\n", floattemp);
-		
-		modem_send_unsolicited_response(FILE_ID_START + 1, 0, 1, &humResult, &session_config);
-		//modem_write_file(FILE_ID_START + 1, 0, 1, &humResult);
-		
-		//position
-		gps_position_dd_t pos = gps_get_position_dd();
-		printf("Latitude: %f\n", pos.latitude);
-		printf("Longitude: %f\n", pos.longitude);
-		
-		int posLength = sizeof(pos);
-		uint8_t data[posLength];
-		memcpy(data,&pos,posLength);
-		
-		//modem_write_file(FILE_ID_START + 2, 0, posLength, data);
-		modem_send_unsolicited_response(FILE_ID_START + 2, 0, posLength, data, &session_config);
+		processSHT31();
+		processGPS();
 		
 		msg_t msg;
 		msg.type = 0; // init on undefined value
@@ -88,8 +90,8 @@ void * app_thread(void * arg) {
 			//TODO maybe add GPS data to IPC message
 			msg_receive(&msg);
 		}
-		// new GPS data is available but may be too fast
 		
+		// new GPS data is available but may be too fast
 		uint32_t time = SLEEP_TIME * 1000000 - (xtimer_now_usec() - start);
 		if(time> 0) xtimer_usleep(time); // sleep remaining time
 	}
