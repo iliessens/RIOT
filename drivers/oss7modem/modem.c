@@ -338,19 +338,32 @@ bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* 
   return true;
 }
 
-/*
+
 bool modem_send_unsolicited_response(uint8_t file_id, uint32_t offset, uint32_t length, uint8_t* data,
                                      d7ap_master_session_config_t* d7_interface_config) {
   if(!alloc_command())
     return false;
+	
+	mutex_trylock(&cmd_mutex); // make sure locked without blocking
 
   alp_append_forward_action(&command.fifo, d7_interface_config);
   alp_append_return_file_data_action(&command.fifo, file_id, offset, length, data);
 
   send(command.buffer, fifo_get_size(&command.fifo));
+  
+    // block until ready
+  // Timeout is longer because writes take longer
+ 	int ok = xtimer_mutex_lock_timeout(&cmd_mutex, OSS7MODEM_WRITE_TIMEOUT); 
+	
+	if(ok == -1) {
+		command.is_active = false; // reset command field
+		return false; // timer expired
+	}
+  
   return true;
 }
 
+/*
 bool modem_send_raw_unsolicited_response(uint8_t* alp_command, uint32_t length,
                                          d7ap_master_session_config_t* d7_interface_config) {
   if(!alloc_command())

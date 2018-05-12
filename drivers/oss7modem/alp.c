@@ -90,7 +90,7 @@ void alp_append_file_offset_operand(fifo_t* fifo, uint8_t file_id, uint32_t offs
   alp_append_length_operand(fifo, offset);
 }
 
-/*
+
 void alp_append_forward_action(fifo_t* fifo, d7ap_master_session_config_t* session_config) {
   assert(session_config);
   assert(fifo_put_byte(fifo, ALP_OP_FORWARD) == SUCCESS);
@@ -103,7 +103,6 @@ void alp_append_forward_action(fifo_t* fifo, d7ap_master_session_config_t* sessi
   assert(fifo_put(fifo, session_config->addressee.id, id_length) == SUCCESS);
   DPRINT("FORWARD");
 }
- */
 
 void alp_append_return_file_data_action(fifo_t* fifo, uint8_t file_id, uint32_t offset, uint32_t length, uint8_t* data) {
   assert(fifo_put_byte(fifo, ALP_OP_RETURN_FILE_DATA) == SUCCESS);
