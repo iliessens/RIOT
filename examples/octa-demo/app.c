@@ -16,6 +16,8 @@
 
 #define FILE_ID_START 0x40
 
+static app_state_t app_state = WAIT_TIME;
+
 static d7ap_master_session_config_t session_config = {
     .qos = {
 		
@@ -80,9 +82,13 @@ void * app_thread(void * arg) {
 		
 		uint32_t start =  xtimer_now_usec();
 		
+		app_state = READ_TEMP;
 		processSHT31();
+		
+		app_state = READ_GPS;
 		processGPS();
 		
+		app_state = WAIT_GPS;
 		msg_t msg;
 		msg.type = 0; // init on undefined value
 		
@@ -93,7 +99,10 @@ void * app_thread(void * arg) {
 		
 		// new GPS data is available but may be too fast
 		uint32_t time = SLEEP_TIME * 1000000 - (xtimer_now_usec() - start);
-		if(time> 0) xtimer_usleep(time); // sleep remaining time
+		if(time> 0) {
+			app_state = WAIT_TIME;
+			xtimer_usleep(time); // sleep remaining time
+		}
 	}
 	
 }
@@ -106,4 +115,44 @@ void startApp(void) {
 		0 , app_thread , NULL, "App");
 	
 	gps_set_callback(pid);
+}
+
+app_state_t get_state(void) {
+	return app_state;
+}
+
+int get_app_info(int argc, char** argv) {
+	(void) argc;
+	(void) argv;
+	
+	puts("Octa demo app");
+	printf("Current state: ");
+	switch(app_state) {
+		case(WAIT_GPS): puts("Wait for GPS");
+		break;
+		case(WAIT_TIME): puts("Timer wait");
+		break;
+		case(READ_GPS): puts("Reading and sending GPS");
+		break;
+		case(READ_TEMP): puts("Reading and sending SHT31");
+		break;
+		default: puts("Unknown state");
+	}
+	
+
+	modem_read_result_t result;
+	if(modem_read_file(0,0,8,&result)) {
+		
+		printf("Modem UID: ");
+		for(unsigned int i =0; i< result.length; i++) {
+			printf("%02X",result.data[i]);
+		}
+		printf("\n");
+	}
+	else {
+		puts("Error communicating with modem!");
+	}
+	
+	
+	return 0;
 }

@@ -4,6 +4,7 @@
 #include "app.h"
 
 const shell_command_t shell_commands[] = {
+	{"appinfo","Get app info",get_app_info},
 	{NULL,NULL,NULL}};
 
 int main(void)
