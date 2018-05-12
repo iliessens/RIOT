@@ -11,10 +11,29 @@
 #include "oss7modem.h"
 
 #define SLEEP_TIME 10
-#define GPS_PORT 	OCTA_P2
+#define GPS_PORT 	OCTA_P1
 #define MODEM_PORT 	OCTA_P2
 
 #define FILE_ID_START 0x40
+
+static d7ap_master_session_config_t session_config = {
+    .qos = {
+		
+        .qos_resp_mode = SESSION_RESP_MODE_ANY,
+        .qos_retry_mode = SESSION_RETRY_MODE_NO,
+        .qos_stop_on_error       = false,
+        .qos_record              = false
+    },
+    .dormant_timeout = 0,
+    .addressee = {
+        .ctrl = {
+            .nls_method = AES_NONE,
+            .id_type = ID_TYPE_NOID,
+        },
+		.access_class = 0x01,
+        .id = {0}
+    }
+};
 
 static char app_thread_stack[THREAD_STACKSIZE_MAIN];
 
@@ -31,21 +50,23 @@ void * app_thread(void * arg) {
 		
 		//temperature
 		saul_reg_read(tempSensor, &result);
-		//uint8_t tempResult = result.val[0];
+		uint8_t tempResult = result.val[0];
 		
 		float floattemp = result.val[0] * pow(10,result.scale);
 		printf("Temperatuur: %f\n", floattemp);
 		
-		// bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
+		//bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
+		modem_send_unsolicited_response(FILE_ID_START, 0, 1, &tempResult, &session_config);
 		//modem_write_file(FILE_ID_START, 0, 1, &tempResult);
 		
 		// humidity
 		saul_reg_read(humSensor, &result);
-		//uint8_t humResult = result.val[0];
+		uint8_t humResult = result.val[0];
 		
 		floattemp = result.val[0] * pow(10,result.scale);
 		printf("Vochtigheid: %f\n", floattemp);
 		
+		modem_send_unsolicited_response(FILE_ID_START + 1, 0, 1, &humResult, &session_config);
 		//modem_write_file(FILE_ID_START + 1, 0, 1, &humResult);
 		
 		//position
@@ -58,14 +79,16 @@ void * app_thread(void * arg) {
 		memcpy(data,&pos,posLength);
 		
 		//modem_write_file(FILE_ID_START + 2, 0, posLength, data);
+		modem_send_unsolicited_response(FILE_ID_START + 2, 0, posLength, data, &session_config);
 		
 		msg_t msg;
 		msg.type = 0; // init on undefined value
+		
 		while(msg.type != GPS_MSG_TYPE) {
 			//TODO maybe add GPS data to IPC message
 			msg_receive(&msg);
 		}
-		// new GPS data is available bbut may be too fast
+		// new GPS data is available but may be too fast
 		
 		uint32_t time = SLEEP_TIME * 1000000 - (xtimer_now_usec() - start);
 		if(time> 0) xtimer_usleep(time); // sleep remaining time
@@ -75,7 +98,7 @@ void * app_thread(void * arg) {
 
 void startApp(void) {
 	gps_init_uart(GPS_PORT.uart);
-	//modem_init(MODEM_PORT.uart);
+	modem_init(MODEM_PORT.uart);
 	
 	kernel_pid_t pid = thread_create(app_thread_stack, sizeof(app_thread_stack), THREAD_PRIORITY_MAIN - 2, 
 		0 , app_thread , NULL, "App");
