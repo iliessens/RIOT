@@ -3,6 +3,8 @@
 #include "shell.h"
 #include "app.h"
 
+#include "thread.h"
+
 const shell_command_t shell_commands[] = {
 	{"appinfo","Get app info",get_app_info},
 	{NULL,NULL,NULL}};
@@ -14,6 +16,8 @@ int main(void)
 	char line_buf[SHELL_DEFAULT_BUFSIZE];
 	// won't go past this normally
     shell_run(shell_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
+	
+	//thread_sleep(); // alternative for shell
 	
     return 0;
 }

@@ -21,6 +21,7 @@ USEMODULE += ps # debug threads
 USEMODULE += saul_default
 USEMODULE += printf_float
 USEMODULE += xtimer
+USEMODULE += schedstatistics
 
 USEMODULE += fireflyx1
 USEMODULE += oss7modem
