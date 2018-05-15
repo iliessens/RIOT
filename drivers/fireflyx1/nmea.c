@@ -7,6 +7,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "nmea.h"
 
@@ -43,6 +44,9 @@ int find_start (uint8_t b) { return b == '$' ? OK : FAIL; }
 
 // detects the GNGGA command
 //$GNGGA,132322.000,5113.4908,N,00424.7987,E,1,6,1.23,-13.3,M,47.3,M,,*5B
+
+//$GNGGA,132322.000,5113.4908  ,N,00424.7987  ,E,1,6,1.23,-13.3,M,47.3,M,,*5B
+//$GNGGA,182606.000,5105.599018,N,00422.610230,E,1,11,1.10,27.450,M,47.312,M,,*41
 int parse_gngga(uint8_t b) {
   static uint8_t pos = 0;
   const uint8_t string[] = "GNGGA,";
@@ -122,10 +126,12 @@ int parse_latitude(uint8_t b) {
     case 6:
     case 7:
     case 8:
+	case 9:
+	case 10:
       if(b < '0' || b > '9') { pos = 0; return FAIL; }
       position.latitude.min += (b - '0') / pow(10, (pos - 4));
       break;
-    case 9:
+    case 11:
       pos = 0;
       if (b == ',')
         return OK;
@@ -168,10 +174,12 @@ int parse_longitude(uint8_t b) {
     case 7:
     case 8:
     case 9:
+	case 10:
+    case 11:
       if(b < '0' || b > '9') { pos = 0; return FAIL; }
       position.longitude.min += (b - '0') / pow(10, (pos - 5));
       break;
-    case 10:
+    case 12:
       pos = 0;
       if (b == ',')
         return OK;

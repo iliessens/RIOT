@@ -29,7 +29,9 @@ static fifo_t  _gps_fifo;
 static bool _active = true;
 static interface_t _interface = INTERFACE_NOT_INITIALIZED;
 static uart_t _uart;
-static uint32_t baudrate = 9600;       // set to 57600 or higher for updaterates higher than 1Hz
+static uint32_t baudrate = 115200;       // set to 57600 or higher for updaterates higher than 1Hz
+// xm1110 115200
+//firefly 9600
 
 static kernel_pid_t callback_pid = -1; // defines no callback
 
@@ -47,6 +49,7 @@ static void _process_gps_fifo(void) {
 }
 
 static void _gps_cb(void* arg, uint8_t data) {
+	
 	(void) arg;
 	
   if(! _active ) { return; }

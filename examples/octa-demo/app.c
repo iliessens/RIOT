@@ -10,10 +10,6 @@
 #include "fireflyx1.h"
 #include "oss7modem.h"
 
-#define SLEEP_TIME 10
-#define GPS_PORT 	OCTA_P1
-#define MODEM_PORT 	OCTA_P2
-
 #define FILE_ID_START 0x40
 
 static app_state_t app_state = WAIT_TIME;
