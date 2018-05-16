@@ -10,6 +10,10 @@
 #include "fireflyx1.h"
 #include "oss7modem.h"
 
+#define GPS_BAUDRATE 115200
+// xm1110 115200
+//firefly 9600
+
 #define FILE_ID_START 0x40
 
 static app_state_t app_state = WAIT_TIME;
@@ -104,7 +108,7 @@ void * app_thread(void * arg) {
 }
 
 void startApp(void) {
-	gps_init_uart(GPS_PORT.uart);
+	gps_init_uart(GPS_PORT.uart, GPS_BAUDRATE);
 	modem_init(MODEM_PORT.uart);
 	
 	kernel_pid_t pid = thread_create(app_thread_stack, sizeof(app_thread_stack), THREAD_PRIORITY_MAIN - 2, 

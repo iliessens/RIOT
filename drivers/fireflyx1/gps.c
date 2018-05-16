@@ -29,9 +29,7 @@ static fifo_t  _gps_fifo;
 static bool _active = true;
 static interface_t _interface = INTERFACE_NOT_INITIALIZED;
 static uart_t _uart;
-static uint32_t baudrate = 115200;       // set to 57600 or higher for updaterates higher than 1Hz
-// xm1110 115200
-//firefly 9600
+static uint32_t baudrate;       // set to 57600 or higher for updaterates higher than 1Hz
 
 static kernel_pid_t callback_pid = -1; // defines no callback
 
@@ -77,7 +75,10 @@ void *gps_rcv_thread(void *arg) {
 	return NULL;
 }
 
-bool gps_init_uart(uart_t uart_handle) {
+bool gps_init_uart(uart_t uart_handle, int baud) {
+	assert(baud != 0);
+	baudrate = baud;
+	
   assert(_interface == INTERFACE_NOT_INITIALIZED);
   _uart = uart_handle;
   

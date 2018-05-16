@@ -9,7 +9,7 @@
 
 #define GPS_MSG_TYPE 1
 
-bool gps_init_uart(uart_t uart_handle);
+bool gps_init_uart(uart_t uart_handle,int baudrate);
 void gps_set_callback(kernel_pid_t pid);
 
 //void gps_firmware_version(void);
