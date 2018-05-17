@@ -82,10 +82,10 @@ void log_print_data(uint8_t* message, uint32_t length)
 
 // Start implementation
 void receiveFile(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* output_buffer) {
-	printf("File received:\n");
-	printf("File id: %d\n",file_id);
+	DEBUG("File received:\n");
+	DEBUG("File id: %d\n",file_id);
 	
-	printf("File data: ");
+	DEBUG("File data: ");
 	log_print_data(output_buffer,size);
 	(void) offset;
 	
@@ -249,7 +249,7 @@ int modem_init(uart_t uart) {
 	assert(pid != EINVAL);
 	assert(pid != EOVERFLOW);
 	
-	printf("OSS7 thread created: id %d\n", pid);
+	DEBUG("OSS7 thread created: id %d\n", pid);
   
 	int uart_state = uart_init(uart_handle, OSS7MODEM_BAUDRATE, rx_cb, NULL);
 	
