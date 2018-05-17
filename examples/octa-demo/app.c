@@ -88,21 +88,25 @@ void * app_thread(void * arg) {
 		app_state = READ_GPS;
 		processGPS();
 		
+		printf("Done sending\n\n");
+		
 		app_state = WAIT_GPS;
 		msg_t msg;
-		msg.type = 0; // init on undefined value
-		
-		while(msg.type != GPS_MSG_TYPE) {
-			//TODO maybe add GPS data to IPC message
+		do {
 			msg_receive(&msg);
-		}
+		} while(msg.type != GPS_MSG_TYPE);
 		
+		printf("New GPS data received\n");
 		// new GPS data is available but may be too fast
 		uint32_t time = SLEEP_TIME * 1000000 - (xtimer_now_usec() - start);
+		
 		if(time> 0) {
 			app_state = WAIT_TIME;
+			printf("Extra sleeping\n");
 			xtimer_usleep(time); // sleep remaining time
 		}
+		
+		printf("\n"); // emtpy line
 	}
 	
 }
