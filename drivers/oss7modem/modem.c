@@ -21,7 +21,6 @@
 #include "errors.h"
 #include "fifo.h"
 #include "alp.h"
-#include "oss7_log.h"
 
 #include "xtimer.h"
 #include "thread.h"
@@ -29,6 +28,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#define ENABLE_DEBUG (0)
+#include "debug.h"
 
 #define RX_BUFFER_SIZE 256
 #define CMD_BUFFER_SIZE 256
@@ -68,8 +70,17 @@ static cmd_return_status return_status;
 long timer_get_counter_value(void) {
 	return xtimer_now_usec();
 }
+//adapter for RIOT debug-framework
+void log_print_data(uint8_t* message, uint32_t length)
+{
+    for( uint32_t i=0 ; i<length ; i++ )
+    {
+        DEBUG(" %02X", message[i]);
+    }
+	DEBUG("\n");
+}
 
-
+// Start implementation
 void receiveFile(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* output_buffer) {
 	printf("File received:\n");
 	printf("File id: %d\n",file_id);
@@ -101,7 +112,7 @@ static void process_serial_frame(fifo_t* fifo) {
           command_completed = action.tag_response.completed;
           completed_with_error = action.tag_response.error;
         } else {
-          log_print_string("received resp with unexpected tag_id (%i vs %i)", action.tag_response.tag_id, command.tag_id);
+          DEBUG("received resp with unexpected tag_id (%i vs %i)\n", action.tag_response.tag_id, command.tag_id);
           // TODO unsolicited responses
         }
         break;
@@ -113,7 +124,7 @@ static void process_serial_frame(fifo_t* fifo) {
         break;
       case ALP_OP_RETURN_STATUS: ;
         uint8_t addressee_len = alp_addressee_id_length(action.d7_interface_status.addressee.ctrl.id_type);
-        log_print_string("received resp from: ");
+        DEBUG("received resp from: ");
         log_print_data(action.d7_interface_status.addressee.id, addressee_len);
         // TODO callback?
         break;
@@ -124,7 +135,7 @@ static void process_serial_frame(fifo_t* fifo) {
 
 
   if(command_completed) {
-    log_print_string("command with tag %i completed @ %i", command.tag_id, timer_get_counter_value());
+    DEBUG("command with tag %i completed @ %li\n", command.tag_id, timer_get_counter_value());
 	
 	return_status.status.completed = ! completed_with_error;
     command.is_active = false;
@@ -146,7 +157,7 @@ static void process_rx_fifo(void) {
 
         if(header[0] != SERIAL_ALP_FRAME_SYNC_BYTE || header[1] != SERIAL_ALP_FRAME_VERSION) {
           fifo_skip(&rx_fifo, 1);
-          log_print_string("skip");
+          DEBUG("skip\n");
           parsed_header = false;
           payload_len = 0;
           if(fifo_get_size(&rx_fifo) < SERIAL_ALP_FRAME_HEADER_SIZE)
@@ -159,14 +170,14 @@ static void process_rx_fifo(void) {
         parsed_header = true;
         fifo_skip(&rx_fifo, SERIAL_ALP_FRAME_HEADER_SIZE);
         payload_len = header[2];
-        log_print_string("found header, payload size = %i", payload_len);
+        DEBUG("found header, payload size = %i\n", payload_len);
 		
 		// implicit return, task will re-run to parse payload
 		mutex_unlock(&rx_mutex);
     }
   } else {
     if(fifo_get_size(&rx_fifo) < payload_len) {
-      log_print_string("payload not complete yet");
+      DEBUG("payload not complete yet\n");
 	  
 	  // stop task
       return;
@@ -214,7 +225,7 @@ static void send(uint8_t* buffer, uint8_t len) {
   uint8_t header[] = {'A', 'T', '$', 'D', 0xC0, 0x00, len };
   uart_write(uart_handle, header, sizeof(header));
   uart_write(uart_handle, buffer, len);
-  log_print_string("> %i bytes @ %i\n", len, timer_get_counter_value());
+  DEBUG("> %i bytes @ %li\n", len, timer_get_counter_value());
 }
 
 bool test_comm(void) {
@@ -265,7 +276,7 @@ bool modem_execute_raw_alp(uint8_t* alp, uint8_t len) {
 
 bool alloc_command(void) {
   if(command.is_active) {
-    log_print_string("prev command still active @ %i", timer_get_counter_value());
+    DEBUG("prev command still active @ %li", timer_get_counter_value());
     return false;
   }
 

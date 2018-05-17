@@ -26,14 +26,17 @@
 #include "alp.h"
 //#include "fs.h"
 #include "fifo.h"
-#include "oss7_log.h"
 #include "types.h"
 #include <assert.h>
 
+#define ENABLE_DEBUG (0)
+#include "debug.h"
+
+#ifdef ENABLE_DEBUG 
+#include <inttypes.h>
+#endif
+
 #define SUCCESS 0
-
-#define DPRINT(...) printf(__VA_ARGS__)
-
 
 alp_operation_t alp_get_operation(uint8_t* alp_command)
 {
@@ -101,7 +104,7 @@ void alp_append_forward_action(fifo_t* fifo, d7ap_master_session_config_t* sessi
   uint8_t id_length = alp_addressee_id_length(session_config->addressee.ctrl.id_type);
   assert(fifo_put_byte(fifo, session_config->addressee.access_class) == SUCCESS);
   assert(fifo_put(fifo, session_config->addressee.id, id_length) == SUCCESS);
-  DPRINT("FORWARD");
+  DEBUG("FORWARD\n");
 }
 
 void alp_append_return_file_data_action(fifo_t* fifo, uint8_t file_id, uint32_t offset, uint32_t length, uint8_t* data) {
@@ -167,7 +170,7 @@ static void parse_op_return_file_data(fifo_t* fifo, alp_action_t* action) {
   action->file_data_operand.provided_data_length = parse_length_operand(fifo);
   assert(action->file_data_operand.provided_data_length <= sizeof(action->file_data_operand.data));
   fifo_pop(fifo, action->file_data_operand.data, action->file_data_operand.provided_data_length);
-  log_print_string("parsed file data file %i, len %i", action->file_data_operand.file_offset.file_id, action->file_data_operand.provided_data_length);
+  DEBUG("parsed file data file %i, len %" PRIu32 "\n", action->file_data_operand.file_offset.file_id, action->file_data_operand.provided_data_length);
 }
 
 
@@ -175,7 +178,7 @@ static void parse_op_return_tag(fifo_t* fifo, alp_action_t* action, bool b6, boo
   action->tag_response.completed = b7;
   action->tag_response.error = b6;
   assert(fifo_pop(fifo, &action->tag_response.tag_id, 1) == SUCCESS);
-  log_print_string("parsed return tag %i, eop %i, err %i", action->tag_response.tag_id, action->tag_response.completed, action->tag_response.error);
+  DEBUG("parsed return tag %i, eop %i, err %i\n", action->tag_response.tag_id, action->tag_response.completed, action->tag_response.error);
 }
 
 /*
@@ -201,7 +204,7 @@ static void parse_op_return_status(fifo_t* fifo, alp_action_t* action, bool b6, 
   fifo_pop(fifo, &action->d7_interface_status.addressee.access_class, 1);
   uint8_t addressee_len = alp_addressee_id_length(action->d7_interface_status.addressee.ctrl.id_type);
   assert(fifo_pop(fifo, action->d7_interface_status.addressee.id, addressee_len) == SUCCESS);
-  log_print_string("parsed interface status");
+  DEBUG("parsed interface status");
 }
 */
 
@@ -223,10 +226,10 @@ void alp_parse_action(fifo_t* fifo, alp_action_t* action) {
       parse_op_return_status(fifo, action, b6, b7);
       break;*/
     default:
-      log_print_string("op %x not implemented", op);
+      DEBUG("op %x not implemented\n", op);
       assert(false);
   }
-  log_print_string("parsed action");
+  DEBUG("parsed action\n");
 }
 
 /*
@@ -274,14 +277,14 @@ uint8_t alp_get_expected_response_length(uint8_t* alp_command, uint8_t alp_comma
     }
   }
 
-  DPRINT("Expected ALP response length=%i", expected_response_length);
+  DEBUG("Expected ALP response length=%i", expected_response_length);
   return expected_response_length;
 }
 
  */
 
 void alp_append_tag_request_action(fifo_t* fifo, uint8_t tag_id, bool eop) {
-  DPRINT("append tag %i", tag_id);
+  DEBUG("append tag %i\n", tag_id);
   uint8_t op = ALP_OP_REQUEST_TAG | (eop << 7);
   assert(fifo_put_byte(fifo, op) == SUCCESS);
   assert(fifo_put_byte(fifo, tag_id) == SUCCESS);
