@@ -73,7 +73,7 @@ void processGPS(void) {
 	memcpy(data,&pos,posLength);
 	
 	//bool modem_write_file(uint8_t file_id, uint32_t offset, uint32_t size, uint8_t* data);
-	modem_send_unsolicited_response(FILE_ID_START + 2, 0, posLength, data, &session_config);
+	//modem_send_unsolicited_response(FILE_ID_START + 2, 0, posLength, data, &session_config);
 }
 void * app_thread(void * arg) {
 	(void) arg; // supress warning

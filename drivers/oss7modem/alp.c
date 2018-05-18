@@ -181,7 +181,7 @@ static void parse_op_return_tag(fifo_t* fifo, alp_action_t* action, bool b6, boo
   DEBUG("parsed return tag %i, eop %i, err %i\n", action->tag_response.tag_id, action->tag_response.completed, action->tag_response.error);
 }
 
-/*
+
 static void parse_op_return_status(fifo_t* fifo, alp_action_t* action, bool b6, bool b7) {
   assert(b6 && !b7); // TODO implement action status
   uint8_t itf_id;
@@ -206,7 +206,6 @@ static void parse_op_return_status(fifo_t* fifo, alp_action_t* action, bool b6, 
   assert(fifo_pop(fifo, action->d7_interface_status.addressee.id, addressee_len) == SUCCESS);
   DEBUG("parsed interface status");
 }
-*/
 
 void alp_parse_action(fifo_t* fifo, alp_action_t* action) {
   uint8_t op;
@@ -222,9 +221,9 @@ void alp_parse_action(fifo_t* fifo, alp_action_t* action) {
     case ALP_OP_RETURN_TAG:
       parse_op_return_tag(fifo, action, b6, b7);
       break;
-    /*case ALP_OP_RETURN_STATUS:
+    case ALP_OP_RETURN_STATUS:
       parse_op_return_status(fifo, action, b6, b7);
-      break;*/
+      break;
     default:
       DEBUG("op %x not implemented\n", op);
       assert(false);
