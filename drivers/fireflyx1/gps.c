@@ -35,8 +35,6 @@ static kernel_pid_t callback_pid = -1; // defines no callback
 
 static void _process_gps_fifo(void) {
 	
-	//puts("GPS processing");
-	
   while(fifo_get_size(&_gps_fifo) > 0) {
     uint8_t byte;
     fifo_pop(&_gps_fifo, &byte, 1);
@@ -46,8 +44,7 @@ static void _process_gps_fifo(void) {
 
 }
 
-static void _gps_cb(void* arg, uint8_t data) {
-	
+static void _gps_cb(void* arg, uint8_t data) {	
 	(void) arg;
 	
   if(! _active ) { return; }

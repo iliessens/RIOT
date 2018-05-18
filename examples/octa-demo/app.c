@@ -113,6 +113,7 @@ void * app_thread(void * arg) {
 
 void startApp(void) {
 	gps_init_uart(GPS_PORT.uart, GPS_BAUDRATE);
+	
 	modem_init(MODEM_PORT.uart);
 	
 	kernel_pid_t pid = thread_create(app_thread_stack, sizeof(app_thread_stack), THREAD_PRIORITY_MAIN - 2, 

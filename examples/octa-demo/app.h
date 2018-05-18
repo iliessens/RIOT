@@ -2,8 +2,8 @@
 #define APP_H
 
 #define SLEEP_TIME 60
-#define GPS_PORT 	OCTA_P1
-#define MODEM_PORT 	OCTA_P2
+#define GPS_PORT 	OCTA_P2
+#define MODEM_PORT 	OCTA_P1
 
 typedef enum {
 	WAIT_GPS,

@@ -29,7 +29,7 @@
 #include "types.h"
 #include <assert.h>
 
-#define ENABLE_DEBUG (0)
+#define ENABLE_DEBUG (1)
 #include "debug.h"
 
 #ifdef ENABLE_DEBUG 
