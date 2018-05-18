@@ -135,6 +135,7 @@ static const uart_conf_t uart_config[] = {
         .tx_af      = GPIO_AF7,
         .bus        = APB1,
         .irqn       = USART2_IRQn,
+	.swap	    = 1,
 #ifdef UART_USE_DMA
         .dma_stream = 5,
         .dma_chan   = 4
@@ -149,6 +150,7 @@ static const uart_conf_t uart_config[] = {
         .tx_af      = GPIO_AF8,
         .bus        = APB1,
         .irqn       = UART5_IRQn,
+	.swap	    = 1,
 #ifdef UART_USE_DMA
         .dma_stream = 5,
         .dma_chan   = 4

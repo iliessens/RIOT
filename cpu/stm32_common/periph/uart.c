@@ -89,7 +89,9 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
 
     /* reset UART configuration -> defaults to 8N1 mode */
     dev(uart)->CR1 = 0;
-    dev(uart)->CR2 = 0;
+	/* swap rx and tx if requested */
+	if(uart_config[uart].swap) dev(uart)->CR2 = USART_CR2_SWAP_Msk;
+	else dev(uart)->CR2 = 0;
     dev(uart)->CR3 = 0;
 
     /* calculate and apply baudrate */

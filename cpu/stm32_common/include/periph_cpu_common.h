@@ -279,6 +279,7 @@ typedef struct {
     uint32_t rcc_mask;      /**< bit in clock enable register */
     gpio_t rx_pin;          /**< RX pin */
     gpio_t tx_pin;          /**< TX pin */
+    int swap;		/** 0 means no swap, others mean swap */
 #ifndef CPU_FAM_STM32F1
     gpio_af_t rx_af;        /**< alternate function for RX pin */
     gpio_af_t tx_af;        /**< alternate function for TX pin */
